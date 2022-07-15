@@ -1,21 +1,12 @@
-/**
- * A plugin which enables rendering of a count down clock in
- * reveal.js slides.
- *
- * @author Christer Eriksson
- */
-var RevealCountDown =
-  window.RevealCountDown ||
-  (function() {
-    var options = Reveal.getConfig().countdown || {};
-
+const RevealCountDown = {
+  id: 'RevealCountDown',
+  init: ( deck ) => {
+    var options = deck.getConfig().countdown || {};
+    
     var defaultOptions = {
       defaultTime: 300,
       autostart: "no",
-      tDelta: 30,
-      playTickSoundLast: 10,
-      tickSound: "",
-      timeIsUpSound: ""
+      tDelta: 30
     };
 
     defaults(options, defaultOptions);
@@ -28,32 +19,29 @@ var RevealCountDown =
       }
     }
 
-    var tick = options.tickSound != "" ? new Audio(options.tickSound) : null;
-    var endSound =
-      options.timeIsUpSound != "" ? new Audio(options.timeIsUpSound) : null;
     var counterRef = null;
     var interval = null;
     var startTime = 0;
     var elapsedTime = 0;
     var running = false;
 
-    Reveal.addEventListener("slidechanged", function(event) {
+    deck.addEventListener("slidechanged", function(event) {
       initCountDown(event.currentSlide);
     });
 
     // If timer is on first slide start on ready
-    Reveal.addEventListener("ready", function(event) {
+    deck.addEventListener("ready", function(event) {
       initCountDown(event.currentSlide);
     });
 
-    Reveal.addKeyBinding(
+    deck.addKeyBinding(
       { keyCode: 84, key: "T", description: "Pause/Unpause timer" },
       function() {
         togglePauseTimer();
       }
     );
 
-    Reveal.addKeyBinding(
+    deck.addKeyBinding(
       {
         keyCode: 187,
         key: "+",
@@ -62,7 +50,7 @@ var RevealCountDown =
       increaseTime
     );
 
-    Reveal.addKeyBinding(
+    deck.addKeyBinding(
       {
         keyCode: 189,
         key: "-",
@@ -81,15 +69,15 @@ var RevealCountDown =
 
       if (hoursLeft > 0) {
         counterRef.innerHTML =
-          hoursLeft + " h " + minutesLeft + " m " + secondsLeft + " s";
+          hoursLeft + "h " + minutesLeft + "m " + secondsLeft + "s";
         return;
       }
       if (minutesLeft > 0) {
-        counterRef.innerHTML = minutesLeft + " m " + secondsLeft + " s";
+        counterRef.innerHTML = minutesLeft + "m " + secondsLeft + "s";
         return;
       }
       if (minutesLeft <= 0) {
-        counterRef.innerHTML = secondsLeft + " s";
+        counterRef.innerHTML = secondsLeft + "s";
         return;
       }
     }
@@ -114,9 +102,6 @@ var RevealCountDown =
         if (elapsedTime < startTime && running && !Reveal.isPaused()) {
           elapsedTime = elapsedTime + 1;
           updateTimer(startTime - elapsedTime);
-          if (tick && startTime < elapsedTime + options.playTickSoundLast)
-            tick.play();
-          if (endSound && elapsedTime >= startTime) endSound.play();
         }
       }, 1000);
     }
@@ -133,10 +118,5 @@ var RevealCountDown =
       updateTimer(startTime - elapsedTime);
       running = autostart === "yes" ? true : false;
     }
-
-    return {
-      init: function() {}
-    };
-  })();
-
-Reveal.registerPlugin("countdown", RevealCountDown);
+  }
+};
